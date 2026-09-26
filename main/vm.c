@@ -5,6 +5,9 @@
 
 static const char *TAG = "vm";
 
+static int vm_fetch(VM *vm);
+static void vm_exec(VM *vm, int opcode);
+
 void vm_init(VM *vm, const int *prog)
 {
     vm->prog = prog;
@@ -13,13 +16,20 @@ void vm_init(VM *vm, const int *prog)
     vm->running = true;
 }
 
-int vm_fetch(VM *vm)
+void vm_run(VM *vm)
+{
+    while (vm->running)
+    {
+        int op_code = vm_fetch(vm);
+        vm_exec(vm, op_code);
+    }
+}
+
+static int vm_fetch(VM *vm)
 {
     return vm->prog[vm->ip++];
 }
 
-// Validate a local index before PUT_LOCL/GET_LOCL touch vm->local.
-// Halts the VM on a bad index, since it would read/write outside the array.
 static bool vm_check_local(VM *vm, int idx)
 {
     if (idx >= 0 && idx < VM_LOCALS)
@@ -32,7 +42,7 @@ static bool vm_check_local(VM *vm, int idx)
     return false;
 }
 
-void vm_exec(VM *vm, int opcode)
+static void vm_exec(VM *vm, int opcode)
 {
     switch (opcode)
     {
@@ -120,14 +130,5 @@ void vm_exec(VM *vm, int opcode)
         ESP_LOGE(TAG, "bad opcode %d, ip %d", opcode, vm->ip - 1);
         vm->running = false;
         break;
-    }
-}
-
-void vm_run(VM *vm)
-{
-    while (vm->running)
-    {
-        int op_code = vm_fetch(vm);
-        vm_exec(vm, op_code);
     }
 }
