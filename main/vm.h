@@ -3,6 +3,8 @@
 
 #include <stdbool.h>
 
+#define VM_LOCALS 16
+
 // Simple stack-based VM on ThingBot (ESP32C3)
 typedef struct
 {
@@ -10,7 +12,7 @@ typedef struct
     int ip;
     int sp;
     int stack[256];
-    int local[16];
+    int local[VM_LOCALS];
     bool running;
 } VM;
  

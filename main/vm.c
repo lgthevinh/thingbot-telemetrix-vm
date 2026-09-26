@@ -18,6 +18,18 @@ int vm_fetch(VM *vm)
     return vm->prog[vm->ip++];
 }
 
+// Validate a local index before PUT_LOCL/GET_LOCL touch vm->local.
+// Halts the VM on a bad index, since it would read/write outside the array.
+static bool vm_check_local(VM *vm, int idx)
+{
+    if (idx >= 0 && idx < VM_LOCALS)
+        return true;
+
+    ESP_LOGE(TAG, "bad local idx %d, ip %d", idx, vm->ip - 2);
+    vm->running = false;
+    return false;
+}
+
 void vm_exec(VM *vm, int opcode)
 {
     switch (opcode)
@@ -70,18 +82,22 @@ void vm_exec(VM *vm, int opcode)
     case PUT_LOCL:
     {
         int idx = vm_fetch(vm);
+        if (!vm_check_local(vm, idx))
+            break;
         vm->local[idx] = vm->stack[vm->sp--];
 
-        ESP_LOGD(TAG, "put_loc [%d] = %d, ip %d, sp %d", idx, vm->local[idx], vm->ip - 1, vm->sp);
+        ESP_LOGD(TAG, "put_loc [%d] = %d, ip %d, sp %d", idx, vm->local[idx], vm->ip - 2, vm->sp);
         break;
     }
 
     case GET_LOCL:
     {
         int idx = vm_fetch(vm);
+        if (!vm_check_local(vm, idx))
+            break;
         vm->stack[++vm->sp] = vm->local[idx];
 
-        ESP_LOGD(TAG, "get_loc [%d] = %d, ip %d, sp %d", idx, vm->local[idx], vm->ip - 1, vm->sp);
+        ESP_LOGD(TAG, "get_loc [%d] = %d, ip %d, sp %d", idx, vm->local[idx], vm->ip - 2, vm->sp);
         break;
     }
 
@@ -95,7 +111,7 @@ void vm_exec(VM *vm, int opcode)
     }
 
     default:
-        ESP_LOGE(TAG, "unknw opcode %d, ip %d", opcode, vm->ip - 1);
+        ESP_LOGE(TAG, "bad opcode %d, ip %d", opcode, vm->ip - 1);
         vm->running = false;
         break;
     }
