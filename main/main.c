@@ -4,10 +4,14 @@
 
 void app_main(void)
 {
-    const int prog = {
-        HAL};
+    const int prog[] = {
+        PSH, 2,
+        PSH, 3,
+        ADD,
+        HAL,
+    };
 
     VM vm;
-    vm_init(&vm, &prog);
+    vm_init(&vm, prog);
     vm_run(&vm);
 }

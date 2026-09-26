@@ -24,11 +24,24 @@ void vm_exec(VM *vm, int opcode)
     {
     case HAL:
         vm->running = false;
-        ESP_LOGI(TAG, "halt at ip %d", vm->ip - 1);
+        ESP_LOGI(TAG, "halt, ip %d", vm->ip - 1);
+        break;
+
+    case PSH:
+        int val = vm_fetch(vm);
+        vm->stack[++vm->sp] = val;
+        ESP_LOGD(TAG, "psh %d, ip %d, sp %d", val, vm->ip - 2, vm->sp);
+        break;
+
+    case ADD:
+        int b = vm->stack[vm->sp--];
+        int a = vm->stack[vm->sp--];
+        vm->stack[++vm->sp] = a + b;
+        ESP_LOGD(TAG, "add %d + %d = %d, ip %d, sp %d", a, b, a + b, vm->ip - 1, vm->sp);
         break;
 
     default:
-        ESP_LOGE(TAG, "bad opcode %d at ip %d", opcode, vm->ip - 1);
+        ESP_LOGE(TAG, "unknw opcode %d, ip %d", opcode, vm->ip - 1);
         vm->running = false;
         break;
     }
