@@ -23,7 +23,9 @@ int vm_fetch(VM *vm)
 static bool vm_check_local(VM *vm, int idx)
 {
     if (idx >= 0 && idx < VM_LOCALS)
+    {
         return true;
+    }
 
     ESP_LOGE(TAG, "bad local idx %d, ip %d", idx, vm->ip - 2);
     vm->running = false;
@@ -83,7 +85,9 @@ void vm_exec(VM *vm, int opcode)
     {
         int idx = vm_fetch(vm);
         if (!vm_check_local(vm, idx))
+        {
             break;
+        }
         vm->local[idx] = vm->stack[vm->sp--];
 
         ESP_LOGD(TAG, "put_loc [%d] = %d, ip %d, sp %d", idx, vm->local[idx], vm->ip - 2, vm->sp);
@@ -94,7 +98,9 @@ void vm_exec(VM *vm, int opcode)
     {
         int idx = vm_fetch(vm);
         if (!vm_check_local(vm, idx))
+        {
             break;
+        }
         vm->stack[++vm->sp] = vm->local[idx];
 
         ESP_LOGD(TAG, "get_loc [%d] = %d, ip %d, sp %d", idx, vm->local[idx], vm->ip - 2, vm->sp);
