@@ -8,7 +8,11 @@ void app_main(void)
         PSH, 2,
         PSH, 3,
         ADD,
-        HAL,
+        PUT_LOCL, 0,
+        PSH, 5,
+        GET_LOCL, 0,
+        SUB,
+        HLT,
     };
 
     VM vm;

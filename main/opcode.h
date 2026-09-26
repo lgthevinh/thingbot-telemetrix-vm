@@ -4,11 +4,14 @@
 // Stack-base vm opcode
 typedef enum
 {
-    HAL,
+    HLT,
     PSH,
     ADD,
     SUB,
-    MUL
+    MUL,
+    PUT_LOCL,
+    GET_LOCL,
+    JMP,
 } OpCode;
 
 #endif // OPCODE_H

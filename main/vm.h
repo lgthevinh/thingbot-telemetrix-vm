@@ -10,6 +10,7 @@ typedef struct
     int ip;
     int sp;
     int stack[256];
+    int local[16];
     bool running;
 } VM;
  
