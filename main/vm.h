@@ -12,7 +12,7 @@ typedef struct
     int stack[256];
     bool running;
 } VM;
-
+ 
 void vm_init(VM *vm, const int *prog);
 int vm_fetch(VM *vm);
 void vm_exec(VM *vm, int opcode);

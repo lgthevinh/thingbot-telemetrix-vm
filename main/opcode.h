@@ -4,7 +4,7 @@
 // Stack-base vm opcode
 typedef enum
 {
-    HLT,
+    HAL,
     PSH,
     ADD,
     SUB,
