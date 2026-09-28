@@ -12,6 +12,7 @@ typedef enum
     PUT_LOCL,
     GET_LOCL,
     JMP,
+    JNZ,
 } OpCode;
 
 #endif // OPCODE_H

@@ -125,6 +125,19 @@ static void vm_exec(VM *vm, int opcode)
         vm->ip = ip;
         break;
     }
+    case JNZ:
+    {
+        if (vm->stack[vm->sp])
+        {
+            ESP_LOGD(TAG, "jnz top stack 0");
+            break;
+        }
+        int ip = vm_fetch(vm);
+
+        ESP_LOGD(TAG, "jnz %d -> %d, sp %d", vm->ip - 1, ip, vm->sp);
+        vm->ip = ip;
+        break;
+    }
 
     default:
         ESP_LOGE(TAG, "bad opcode %d, ip %d", opcode, vm->ip - 1);
