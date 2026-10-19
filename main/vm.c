@@ -11,8 +11,8 @@ static void vm_exec(VM *vm, int opcode);
 void vm_init(VM *vm, const int *prog)
 {
     vm->prog = prog;
-    vm->ip = 0;
-    vm->sp = -1;
+    vm->ip = 0;  // instruction_pointer
+    vm->sp = -1; // stack_pointer
     vm->running = true;
 }
 
@@ -127,15 +127,19 @@ static void vm_exec(VM *vm, int opcode)
     }
     case JNZ:
     {
-        if (vm->stack[vm->sp])
+        int target_ip = vm_fetch(vm);
+
+        // pop the condition when read
+        // not to hold the condition in the stack, avoid stack overflow in loops
+        int cond = vm->stack[vm->sp--];
+        if (cond == 0)
         {
-            ESP_LOGD(TAG, "jnz top stack 0");
+            ESP_LOGD(TAG, "jnz not taken, ip %d, sp %d", vm->ip - 2, vm->sp);
             break;
         }
-        int ip = vm_fetch(vm);
 
-        ESP_LOGD(TAG, "jnz %d -> %d, sp %d", vm->ip - 1, ip, vm->sp);
-        vm->ip = ip;
+        ESP_LOGD(TAG, "jnz %d -> %d, sp %d", vm->ip - 2, target_ip, vm->sp);
+        vm->ip = target_ip;
         break;
     }
 
