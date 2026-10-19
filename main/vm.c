@@ -119,9 +119,9 @@ static void vm_exec(VM *vm, int opcode)
 
     case JMP:
     {
-        int ip = vm->stack[vm->sp--];
+        int ip = vm_fetch(vm);
 
-        ESP_LOGD(TAG, "jmp %d -> %d, sp %d", vm->ip - 1, ip, vm->sp);
+        ESP_LOGD(TAG, "jmp %d -> %d, sp %d", vm->ip - 2, ip, vm->sp);
         vm->ip = ip;
         break;
     }
@@ -140,6 +140,18 @@ static void vm_exec(VM *vm, int opcode)
 
         ESP_LOGD(TAG, "jnz %d -> %d, sp %d", vm->ip - 2, target_ip, vm->sp);
         vm->ip = target_ip;
+        break;
+    }
+    case GT:
+    {   
+        // pop b and a from stack, then psh:
+        // 1 if a is greater than b, else 0
+        int b = vm->stack[vm->sp--];
+        int a = vm->stack[vm->sp--];
+
+        vm->stack[++vm->sp] = a > b;
+
+        ESP_LOGD(TAG, "gt %d > %d = %d, ip %d, sp %d", a, b, a > b, vm->ip - 1, vm->sp);
         break;
     }
 
