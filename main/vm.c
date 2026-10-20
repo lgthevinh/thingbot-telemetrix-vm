@@ -91,20 +91,7 @@ static void vm_exec(VM *vm, int opcode)
         break;
     }
 
-    case PUT_LOCL:
-    {
-        int idx = vm_fetch(vm);
-        if (!vm_check_local(vm, idx))
-        {
-            break;
-        }
-        vm->local[idx] = vm->stack[vm->sp--];
-
-        ESP_LOGD(TAG, "put_loc [%d] = %d, ip %d, sp %d", idx, vm->local[idx], vm->ip - 2, vm->sp);
-        break;
-    }
-
-    case GET_LOCL:
+    case LOAD:
     {
         int idx = vm_fetch(vm);
         if (!vm_check_local(vm, idx))
@@ -113,7 +100,20 @@ static void vm_exec(VM *vm, int opcode)
         }
         vm->stack[++vm->sp] = vm->local[idx];
 
-        ESP_LOGD(TAG, "get_loc [%d] = %d, ip %d, sp %d", idx, vm->local[idx], vm->ip - 2, vm->sp);
+        ESP_LOGD(TAG, "load [%d] = %d, ip %d, sp %d", idx, vm->local[idx], vm->ip - 2, vm->sp);
+        break;
+    }
+
+    case STORE:
+    {
+        int idx = vm_fetch(vm);
+        if (!vm_check_local(vm, idx))
+        {
+            break;
+        }
+        vm->local[idx] = vm->stack[vm->sp--];
+
+        ESP_LOGD(TAG, "store [%d] = %d, ip %d, sp %d", idx, vm->local[idx], vm->ip - 2, vm->sp);
         break;
     }
 
@@ -125,6 +125,7 @@ static void vm_exec(VM *vm, int opcode)
         vm->ip = ip;
         break;
     }
+
     case JNZ:
     {
         int target_ip = vm_fetch(vm);
@@ -142,8 +143,9 @@ static void vm_exec(VM *vm, int opcode)
         vm->ip = target_ip;
         break;
     }
+
     case GT:
-    {   
+    {
         // pop b and a from stack, then psh:
         // 1 if a is greater than b, else 0
         int b = vm->stack[vm->sp--];
@@ -152,6 +154,61 @@ static void vm_exec(VM *vm, int opcode)
         vm->stack[++vm->sp] = a > b;
 
         ESP_LOGD(TAG, "gt %d > %d = %d, ip %d, sp %d", a, b, a > b, vm->ip - 1, vm->sp);
+        break;
+    }
+
+    case GTE:
+    {
+        int b = vm->stack[vm->sp--];
+        int a = vm->stack[vm->sp--];
+
+        vm->stack[++vm->sp] = a >= b;
+
+        ESP_LOGD(TAG, "gte %d >= %d = %d, ip %d, sp %d", a, b, a >= b, vm->ip - 1, vm->sp);
+        break;
+    }
+
+    case LT:
+    {
+        int b = vm->stack[vm->sp--];
+        int a = vm->stack[vm->sp--];
+
+        vm->stack[++vm->sp] = a < b;
+
+        ESP_LOGD(TAG, "lt %d < %d = %d, ip %d, sp %d", a, b, a < b, vm->ip - 1, vm->sp);
+        break;
+    }
+
+    case LTE:
+    {
+        int b = vm->stack[vm->sp--];
+        int a = vm->stack[vm->sp--];
+
+        vm->stack[++vm->sp] = a <= b;
+
+        ESP_LOGD(TAG, "lte %d <= %d = %d, ip %d, sp %d", a, b, a <= b, vm->ip - 1, vm->sp);
+        break;
+    }
+
+    case EQ:
+    {
+        int b = vm->stack[vm->sp--];
+        int a = vm->stack[vm->sp--];
+
+        vm->stack[++vm->sp] = a == b;
+
+        ESP_LOGD(TAG, "eq %d == %d = %d, ip %d, sp %d", a, b, a == b, vm->ip - 1, vm->sp);
+        break;
+    }
+    
+    case NEQ:
+    {
+        int b = vm->stack[vm->sp--];
+        int a = vm->stack[vm->sp--];
+
+        vm->stack[++vm->sp] = a != b;
+
+        ESP_LOGD(TAG, "neq %d != %d = %d, ip %d, sp %d", a, b, a != b, vm->ip - 1, vm->sp);
         break;
     }
 

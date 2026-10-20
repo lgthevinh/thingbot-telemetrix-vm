@@ -9,11 +9,16 @@ typedef enum
     ADD,
     SUB,
     MUL,
-    PUT_LOCL,
-    GET_LOCL,
+    LOAD,
+    STORE,
     JMP,
     JNZ,
     GT,
+    GTE,
+    LT,
+    LTE,
+    EQ,
+    NEQ
 } OpCode;
 
 #endif // OPCODE_H
